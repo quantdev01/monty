@@ -1,8 +1,15 @@
-#ifndef MONTY_H
-#define MONTY_H
-#include <stddef.h>
-#include <stdlib.h>
+#ifndef __HOOLB__
+#define __HOOLB__
+
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/syscall.h>
+#include <string.h>
+
 /**
  * struct stack_s - doubly linked list representation of a stack (or queue)
  * @n: integer
@@ -10,7 +17,7 @@
  * @next: points to the next element of the stack (or queue)
  *
  * Description: doubly linked list node structure
- * for stack, queues, LIFO, FIFO
+ * for stack, queues, LIFO, FIFO Holberton project
  */
 typedef struct stack_s
 {
@@ -25,80 +32,27 @@ typedef struct stack_s
  * @f: function to handle the opcode
  *
  * Description: opcode and its function
- * for stack, queues, LIFO, FIFO
+ * for stack, queues, LIFO, FIFO Holberton project
  */
 typedef struct instruction_s
 {
 	char *opcode;
-	void (*f)(stack_t **stack, unsigned int line_number);
+	void (*f)(stack_t **stack, unsigned int line_num);
 } instruction_t;
 
-extern stack_t *global_stack;
-//extern instruction_t instructions[];
+void pint(stack_t **stack, unsigned int line_num);
+void free_stack(stack_t *head);
+int pushint(char *list, int ln);
+int _strcmp(char *opcode, char *list);
+void add(stack_t **stack, unsigned int line_num);
+void swap(stack_t **stack, unsigned int line_num);
+void pop(stack_t **stack, unsigned int line_num);
+void push(stack_t **stack, unsigned int line_number, int n);
+void pall(stack_t **stack, unsigned int line_num);
+void execute(char *string[], stack_t *stack);
+int nlfind(char *list);
+void free_list(char *a[]);
+int combfind(char *list, int ln);
 
-
-void push(stack_t **stack, unsigned int line_number, int value);
-void pall(stack_t **stack, unsigned int line_number);
-void pint(stack_t **stack, unsigned int line_number);
-void pop(stack_t **stack, unsigned int line_number);
-void swap(stack_t **stack, unsigned int line_number);
-void add(stack_t **stack, unsigned int line_number);
-void nop(stack_t **stack, unsigned int line_number);
-void sub(stack_t **stack, unsigned int line_number);
-void mul(stack_t **stack, unsigned int line_number);
-void mod(stack_t **stack, unsigned int line_number);
-
-void push(stack_t **stack, unsigned int line_number, int value)
-{
-	stack_t *temp = *stack;
-	if (!value)
-	{
-		fprintf(stderr, "L%d: usage: push integer\n", line_number);
-		exit(EXIT_FAILURE);
-	}
-	stack_t *newnode = malloc(sizeof(stack_t));
-
-	if (!newnode)
-	{
-		fprintf(stderr, "Error: malloc failed\n");
-		exit(EXIT_FAILURE);
-	}
-	newnode->n = value;
-
-	newnode->prev = NULL;
-	newnode->next = *stack;
-
-	if (*stack != NULL)
-		(*stack)->prev = newnode;
-	*stack = newnode;
-}
-
-void pall(stack_t **stack, unsigned int line_number)
-{
-	stack_t *temp = *stack;
-	if (temp == NULL)
-		printf("Null pointer\n");
-	while (temp != 0)
-	{
-		printf("%d\n", temp->n);
-		temp  = temp->next;
-	}
-}
-
-void pint(stack_t **stack, unsigned int line_number)
-{
-	if (*stack == NULL)
-	{
-		fprintf(stderr, "L%d: can't pint, stack empty\n", line_number);
-		exit(EXIT_FAILURE);
-	}
-	printf("%d\n", (*stack)->n);
-}
-instruction_t instructions[] = {
-	{"push", push},
-	{"pall", pall},
-	{"pint", pint},
-	// Add more instructions as needed
-};
 
 #endif

@@ -1,39 +1,86 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "monty.h"
 
-int main(int index, char *argv[])
+/**
+ * main - monty interperter
+ * @ac: the number of arguments
+ * @av: the arguments
+ * Return: void
+ */
+int main(int ac, char *av[])
 {
-	const char *filename = argv[1];
+	stack_t *stack = NULL;
+	static char *string[1000] = {NULL};
+	int n = 0;
+	FILE *fd;
+	size_t bufsize = 1000;
 
-	int i = 0;
-	int j = 0;
-
-	FILE *file = fopen(filename, "r");
-	if (file == NULL)
+	if (ac != 2)
 	{
-		perror("Error opening the file\n");
-		return (1);
+		fprintf(stderr, "USAGE: monty file\n");
+		exit(EXIT_FAILURE);
+	}
+	fd = fopen(av[1], "r");
+	if (fd == NULL)
+	{
+		fprintf(stderr, "Error: Can't open file %s\n", av[1]);
+		exit(EXIT_FAILURE);
 	}
 
-	char filelines[100];
 
-	while (fgets(filelines, sizeof(filelines), file) != NULL)
+	for (n = 0; getline(&(string[n]), &bufsize, fd) > 0; n++)
+		;
+	execute(string, stack);
+	free_list(string);
+	fclose(fd);
+	return (0);
+}
+
+/**
+ * execute - executes opcodes
+ * @string: contents of file
+ * @stack: the list
+ * Return: void
+ */
+
+void execute(char *string[], stack_t *stack)
+{
+	int ln, n, i;
+
+	instruction_t st[] = {
+		{"pall", pall},
+		{"pint", pint},
+		{"add", add},
+		{"swap", swap},
+		{"pop", pop},
+		{"null", NULL}
+	};
+
+	for (ln = 1, n = 0; string[n + 1]; n++, ln++)
 	{
-		while (i < 100)
+		if (_strcmp("push", string[n]))
+			push(&stack, ln, pushint(string[n], ln));
+		else if (_strcmp("nop", string[n]))
+			;
+		else
 		{
-			char *itochar = (char) i;
-			if (strstr(filelines, "push") != NULL /*&& strstr(filelines, itochar) != NULL*/)
+			i = 0;
+			while (!_strcmp(st[i].opcode, "null"))
 			{
-				printf("Yes it pull is there [%d]\n", i);
+				if (_strcmp(st[i].opcode, string[n]))
+				{
+					st[i].f(&stack, ln);
+					break;
+				}
+				i++;
 			}
-			i++;
+			if (_strcmp(st[i].opcode, "null") && !_strcmp(string[n], "\n"))
+			{
+				fprintf(stderr, "L%u: unknown instruction %s", ln, string[n]);
+				if (!nlfind(string[n]))
+					fprintf(stderr, "\n");
+				exit(EXIT_FAILURE);
+			}
 		}
 	}
-	printf("i = %d\n", i);
-	/*for (j = 0; j < i; j++)
-	  printf("This is my new array %s\n", new[j]);*/
-	fclose(file);
-	return (0);
+	free_stack(stack);
 }
