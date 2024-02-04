@@ -1,4 +1,4 @@
-#ifdef MONTY_H
+#ifndef MONTY_H
 #define MONTY_H
 #include <stddef.h>
 #include <stdlib.h>
@@ -33,9 +33,11 @@ typedef struct instruction_s
 	void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
-stack_t *global;
+extern stack_t *global_stack;
+//extern instruction_t instructions[];
 
-void push(stack_t **stack, unsigned int line_number);
+
+void push(stack_t **stack, unsigned int line_number, int value);
 void pall(stack_t **stack, unsigned int line_number);
 void pint(stack_t **stack, unsigned int line_number);
 void pop(stack_t **stack, unsigned int line_number);
@@ -43,14 +45,12 @@ void swap(stack_t **stack, unsigned int line_number);
 void add(stack_t **stack, unsigned int line_number);
 void nop(stack_t **stack, unsigned int line_number);
 void sub(stack_t **stack, unsigned int line_number);
-void div(stack_t **stack, unsigned int line_number);
 void mul(stack_t **stack, unsigned int line_number);
 void mod(stack_t **stack, unsigned int line_number);
 
-void push(stack_t **stack, unsigned int line_number)
+void push(stack_t **stack, unsigned int line_number, int value)
 {
-	int value;
-
+	stack_t *temp = *stack;
 	if (!value)
 	{
 		fprintf(stderr, "L%d: usage: push integer\n", line_number);
@@ -64,7 +64,12 @@ void push(stack_t **stack, unsigned int line_number)
 		exit(EXIT_FAILURE);
 	}
 	newnode->n = value;
+
+	newnode->prev = NULL;
 	newnode->next = *stack;
+
+	if (*stack != NULL)
+		(*stack)->prev = newnode;
 	*stack = newnode;
 }
 
@@ -79,5 +84,21 @@ void pall(stack_t **stack, unsigned int line_number)
 		temp  = temp->next;
 	}
 }
+
+void pint(stack_t **stack, unsigned int line_number)
+{
+	if (*stack == NULL)
+	{
+		fprintf(stderr, "L%d: can't pint, stack empty\n", line_number);
+		exit(EXIT_FAILURE);
+	}
+	printf("%d\n", (*stack)->n);
+}
+instruction_t instructions[] = {
+	{"push", push},
+	{"pall", pall},
+	{"pint", pint},
+	// Add more instructions as needed
+};
 
 #endif
