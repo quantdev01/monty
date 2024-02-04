@@ -113,3 +113,19 @@ void pint(stack_t **stack, unsigned int line_number)
 	printf("%d\n", (*stack)->n);
 	line_number++;
 }
+
+void add(stack_t **stack, unsigned int line_number)
+{
+	/*stack_t *temp = *stack;*/
+	int sum = 0;
+
+	if (*stack == NULL)
+	{
+		fprintf(stderr, "L%d: can't pint, stack empty\n", line_number);
+		exit(EXIT_FAILURE);
+	}
+	
+	sum = (*stack)->n + (*stack)->next->n;
+	printf("%d\n", sum);
+	line_number++;
+}
